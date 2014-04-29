@@ -23,6 +23,16 @@ class Document implements Finite\StatefulInterface
     }
 }
 
+// (Optional) Create a factory
+$pimple = new Pimple(
+    [
+        'finite.state_machine' => function () {
+            return new \Finite\StateMachine\StateMachine;
+        }
+    ]
+);
+$factory = new \Finite\Factory\PimpleFactory($pimple, 'finite.state_machine');
+
 // Configure your graph
 $document     = new Document;
 $stateMachine = new Finite\StateMachine\StateMachine($document);
@@ -35,6 +45,7 @@ $loader       = new Finite\Loader\ArrayLoader(array(
         ),
         'proposed' => array(
             'type'       => Finite\State\StateInterface::TYPE_NORMAL,
+<<<<<<< HEAD
             'properties' => array(),
         ),
         'accepted' => array(
@@ -50,6 +61,28 @@ $loader       = new Finite\Loader\ArrayLoader(array(
     'callbacks' => array(
         'before' => array(
             array(
+=======
+            'properties' => [],
+        ],
+        'accepted' => [
+            'type'       => Finite\State\StateInterface::TYPE_NORMAL,
+            'properties' => ['printable' => true],
+        ],
+        'archived' => [
+            'type'       => Finite\State\StateInterface::TYPE_FINAL,
+            'properties' => [],
+        ]
+    ],
+    'transitions' => [
+        'propose' => ['from' => ['draft'], 'to' => 'proposed'],
+        'accept'  => ['from' => ['proposed'], 'to' => 'accepted'],
+        'reject'  => ['from' => ['proposed'], 'to' => 'draft'],
+        'archive' => ['from' => ['accepted'], 'to' => 'archived'],
+    ],
+    'callbacks' => [
+        'before' => [
+            [
+>>>>>>> Add a callback to ease the cascade of transitions
                 'from' => '-proposed',
                 'do' => function(Finite\StatefulInterface $document, \Finite\Event\TransitionEvent $e) {
                     echo 'Applying transition '.$e->getTransition()->getName(), "\n";
@@ -60,6 +93,7 @@ $loader       = new Finite\Loader\ArrayLoader(array(
                 'do' => function() {
                     echo 'Applying transition from proposed state', "\n";
                 }
+<<<<<<< HEAD
             )
         ),
         'after' => array(
@@ -69,9 +103,28 @@ $loader       = new Finite\Loader\ArrayLoader(array(
         )
     )
 ));
+=======
+            ]
+        ],
+        'after' => [
+            [
+                'to' => ['accepted'], 'do' => [$document, 'display']
+            ],
+            [
+                'to' => ['accepted'],
+                'do' => [new \Finite\Callback\CascadeTransitionCallback($factory), 'applySelf'],
+                'args' => ['archive']
+            ]
+        ]
+    ]
+]);
+>>>>>>> Add a callback to ease the cascade of transitions
 
 $loader->load($stateMachine);
 $stateMachine->initialize();
+
+// (Optional) Register the loader in the factory
+$factory->addLoader($loader);
 
 $stateMachine->getDispatcher()->addListener('finite.pre_transition', function(\Finite\Event\TransitionEvent $e) {
     echo 'This is a pre transition', "\n";
