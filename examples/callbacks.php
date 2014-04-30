@@ -23,7 +23,7 @@ class Document implements Finite\StatefulInterface
     }
 }
 
-// (Optional) Create a factory
+// Create a factory
 $pimple = new Pimple(
     [
         'finite.state_machine' => function () {
@@ -35,8 +35,12 @@ $factory = new \Finite\Factory\PimpleFactory($pimple, 'finite.state_machine');
 
 // Configure your graph
 $document     = new Document;
+<<<<<<< HEAD
 $stateMachine = new Finite\StateMachine\StateMachine($document);
 $loader       = new Finite\Loader\ArrayLoader(array(
+=======
+$loader       = new Finite\Loader\ArrayLoader([
+>>>>>>> Use ExpressionLanguage for callback args
     'class'       => 'Document',
     'states'      => array(
         'draft'    => array(
@@ -112,19 +116,18 @@ $loader       = new Finite\Loader\ArrayLoader(array(
             ],
             [
                 'to' => ['accepted'],
-                'do' => [new \Finite\Callback\CascadeTransitionCallback($factory), 'applySelf'],
-                'args' => ['archive']
+                'do' => [new \Finite\Callback\CascadeTransitionCallback($factory), 'apply'],
+                'args' => ['object', 'event', '"archive"']
             ]
         ]
     ]
 ]);
 >>>>>>> Add a callback to ease the cascade of transitions
 
-$loader->load($stateMachine);
-$stateMachine->initialize();
-
-// (Optional) Register the loader in the factory
+// Register the loader in the factory
 $factory->addLoader($loader);
+
+$stateMachine = $factory->get($document);
 
 $stateMachine->getDispatcher()->addListener('finite.pre_transition', function(\Finite\Event\TransitionEvent $e) {
     echo 'This is a pre transition', "\n";
