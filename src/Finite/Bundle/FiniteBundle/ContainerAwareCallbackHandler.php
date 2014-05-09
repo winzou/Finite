@@ -1,7 +1,9 @@
 <?php
 
-namespace Finite\Event;
+namespace Finite\Bundle\FiniteBundle;
 
+use Finite\Event\CallbackHandler;
+use Finite\Event\TransitionEvent;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -28,7 +30,7 @@ class ContainerAwareCallbackHandler extends CallbackHandler implements Container
     /**
      * {@inheritDoc}
      */
-    protected function call($callback, $object, TransitionEvent $e)
+    public function call($callback, $object, TransitionEvent $e, $specs)
     {
         if (
             null !== $this->container
