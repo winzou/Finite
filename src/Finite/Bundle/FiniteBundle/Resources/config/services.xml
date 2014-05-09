@@ -10,12 +10,15 @@
         <parameter key="finite.factory.class">Finite\Factory\SymfonyDependencyInjectionFactory</parameter>
         <parameter key="finite.context.class">Finite\Context</parameter>
         <parameter key="finite.twig_extension.class">Finite\Extension\Twig\FiniteExtension</parameter>
-
         <parameter key="finite.callback.cascade_transition.class">Finite\Callback\CascadeTransitionCallback</parameter>
+        <parameter key="finite.container_aware_callback_handler.class">Finite\ContainerAwareCallbackHandler</parameter>
     </parameters>
 
     <services>
-        <service id="finite.array_loader" class="%finite.array_loader.class%" public="false" />
+        <service id="finite.array_loader" class="%finite.array_loader.class%" public="false">
+            <argument type="collection"></argument>
+            <argument type="service">finite.container_aware_callback_handler</argument>
+        </service>
         <service id="finite.state_machine" class="%finite.state_machine.class%" scope="prototype">
             <call method="setDispatcher">
                 <argument type="service" id="event_dispatcher" />
@@ -34,6 +37,12 @@
         </service>
         <service id="finite.callback.cascade_transition" class="%finite.callback.cascade_transition.class%">
             <argument type="service" id="finite.factory" />
+        </service>
+        <service id="finite.container_aware_callback_handler" class="%finite.container_aware_callback_handler.class%">
+            <argument type="service">event_dispatcher</argument>
+            <call method="setContainer">
+                <argument type="service" id="container" />
+            </call>
         </service>
     </services>
 

@@ -107,8 +107,10 @@ class CallbackHandler
      */
     protected function add(StateMachineInterface $sm, $event, $callback, array $specs)
     {
-        $specs    = $this->processSpecs($specs);
-        $listener = function (TransitionEvent $e) use ($sm, $callback, $specs) {
+        $specs = $this->processSpecs($specs);
+        $that  = $this;
+
+        $listener = function (TransitionEvent $e) use ($sm, $callback, $specs, $that) {
             if ($sm !== $e->getStateMachine()) {
                 return;
             }
@@ -137,16 +139,7 @@ class CallbackHandler
                 return;
             }
 
-            $expr = new ExpressionLanguage();
-
-            call_user_func_array($callback, array_map(
-                function($arg) use($expr, $e) {
-                    return $expr->evaluate($arg, array(
-                        'object' => $e->getStateMachine()->getObject(),
-                        'event'  => $e
-                    ));
-                }, $specs['args']
-            ));
+            $that->call($callback, $sm->getObject(), $e, $specs);
         };
 
         $events = array($event);
@@ -185,5 +178,27 @@ class CallbackHandler
         }
 
         return $specs;
+    }
+
+    /**
+     * Call the callable
+     *
+     * @param Callable        $callback
+     * @param object          $object
+     * @param TransitionEvent $e
+     * @param array           $specs
+     */
+    protected function call($callback, $object, TransitionEvent $e, array $specs)
+    {
+        $expr = new ExpressionLanguage();
+
+        call_user_func_array($callback, array_map(
+            function($arg) use($expr, $e) {
+                return $expr->evaluate($arg, array(
+                    'object' => $e->getStateMachine()->getObject(),
+                    'event'  => $e
+                ));
+            }, $specs['args']
+        ));
     }
 }
