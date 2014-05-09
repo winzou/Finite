@@ -30,7 +30,7 @@ class ContainerAwareCallbackHandler extends CallbackHandler implements Container
     /**
      * {@inheritDoc}
      */
-    public function call($callback, $object, TransitionEvent $e, $specs)
+    public function call($callback, $object, TransitionEvent $e, array $specs)
     {
         if (
             null !== $this->container
@@ -38,9 +38,9 @@ class ContainerAwareCallbackHandler extends CallbackHandler implements Container
             && 0 === strpos($callback[0], '@')
             && $this->container->has(substr($callback[0], 1))
         ) {
-            $callback['do'][0] = $this->container->get(substr($callback['do'][0], 1));
+            $callback[0] = $this->container->get(substr($callback[0], 1));
         }
 
-        return parent::call($callback, $object, $e);
+        return parent::call($callback, $object, $e, $specs);
     }
 }
