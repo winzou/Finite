@@ -10,12 +10,8 @@
         <parameter key="finite.factory.class">Finite\Factory\SymfonyDependencyInjectionFactory</parameter>
         <parameter key="finite.context.class">Finite\Context</parameter>
         <parameter key="finite.twig_extension.class">Finite\Extension\Twig\FiniteExtension</parameter>
-<<<<<<< HEAD
         <parameter key="finite.callback.cascade_transition.class">Finite\Callback\CascadeTransitionCallback</parameter>
-        <parameter key="finite.container_aware_callback_handler.class">Finite\ContainerAwareCallbackHandler</parameter>
-=======
         <parameter key="finite.container_aware_callback_handler.class">Finite\Bundle\FiniteBundle\ContainerAwareCallbackHandler</parameter>
->>>>>>> improve/callback
     </parameters>
 
     <services>
