@@ -41,7 +41,7 @@
         <service id="finite.container_aware_callback_handler" class="%finite.container_aware_callback_handler.class%">
             <argument type="service" id="event_dispatcher" />
             <call method="setContainer">
-                <argument type="service" id="container" />
+                <argument type="service" id="service_container" />
             </call>
         </service>
     </services>
