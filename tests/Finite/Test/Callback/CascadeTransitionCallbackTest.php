@@ -36,6 +36,7 @@ class CascadeTransitionCallbackTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($stateMachine))
         ;
 
+        $stateMachine->expects($this->once())->method('can')->with('transition')->will($this->returnValue(true));
         $stateMachine->expects($this->once())->method('apply')->with('transition');
 
         $this->object->apply($object, $event, 'transition', 'graph');
@@ -55,6 +56,7 @@ class CascadeTransitionCallbackTest extends \PHPUnit_Framework_TestCase
 
         $event->expects($this->once())->method('getStateMAchine')->will($this->returnValue($stateMachine));
 
+        $stateMachine->expects($this->once())->method('can')->with('transition')->will($this->returnValue(true));
         $stateMachine->expects($this->once())->method('apply')->with('transition');
         $stateMachine->expects($this->once())->method('getGraph')->will($this->returnValue('graph'));
 
@@ -77,11 +79,30 @@ class CascadeTransitionCallbackTest extends \PHPUnit_Framework_TestCase
         $event->expects($this->once())->method('getStateMAchine')->will($this->returnValue($stateMachine));
         $event->expects($this->once())->method('getTransition')->will($this->returnValue($transition));
 
+        $stateMachine->expects($this->once())->method('can')->with('transition')->will($this->returnValue(true));
         $stateMachine->expects($this->once())->method('apply')->with('transition');
         $stateMachine->expects($this->once())->method('getGraph')->will($this->returnValue('graph'));
 
         $transition->expects($this->once())->method('getName')->will($this->returnValue('transition'));
 
         $this->object->apply($object, $event);
+    }
+
+    public function testItAppliesTransitionWithoutSoft()
+    {
+        $stateMachine = $this->getMock('Finite\StateMachine\StateMachineInterface');
+        $event        = $this->getMockBuilder('Finite\Event\TransitionEvent')->disableOriginalConstructor()->getMock();
+        $object       = $this->getMock('Finite\StatefulInterface');
+
+        $this->factory->expects($this->any())
+            ->method('get')
+            ->with($object, 'graph')
+            ->will($this->returnValue($stateMachine))
+        ;
+
+        $stateMachine->expects($this->never())->method('can');
+        $stateMachine->expects($this->once())->method('apply')->with('transition');
+
+        $this->object->apply($object, $event, 'transition', 'graph', false);
     }
 }

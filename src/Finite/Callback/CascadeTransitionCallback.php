@@ -33,8 +33,9 @@ class CascadeTransitionCallback
      * @param TransitionEvent $event      Transition event
      * @param string|null     $transition Transition that is to be applied (if null, same as the trigger)
      * @param string|null     $graph      Graph on which the new transition will apply (if null, same as the trigger)
+     * @param bool            $soft       If true, test if the transition can be applied first
      */
-    public function apply($object, TransitionEvent $event, $transition = null, $graph = null)
+    public function apply($object, TransitionEvent $event, $transition = null, $graph = null, $soft = true)
     {
         if (null === $transition) {
             $transition = $event->getTransition()->getName();
@@ -44,6 +45,9 @@ class CascadeTransitionCallback
             $graph = $event->getStateMachine()->getGraph();
         }
 
-        $this->factory->get($object, $graph)->apply($transition);
+        $stateMachine = $this->factory->get($object, $graph);
+        if (!$soft || $stateMachine->can($transition)) {
+            $stateMachine->apply($transition);
+        }
     }
 }
