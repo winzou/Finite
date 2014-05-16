@@ -29,14 +29,18 @@ class CascadeTransitionCallback
     /**
      * Apply a transition to the object that has just undergone a transition
      *
-     * @param Object          $object     Current object
+     * @param Object          $objects    Current object or array of objects
      * @param TransitionEvent $event      Transition event
      * @param string|null     $transition Transition that is to be applied (if null, same as the trigger)
      * @param string|null     $graph      Graph on which the new transition will apply (if null, same as the trigger)
      * @param bool            $soft       If true, test if the transition can be applied first
      */
-    public function apply($object, TransitionEvent $event, $transition = null, $graph = null, $soft = true)
+    public function apply($objects, TransitionEvent $event, $transition = null, $graph = null, $soft = true)
     {
+        if (!is_array($objects) && !$objects instanceof \Traversable) {
+            $objects = array($objects);
+        }
+
         if (null === $transition) {
             $transition = $event->getTransition()->getName();
         }
@@ -45,9 +49,11 @@ class CascadeTransitionCallback
             $graph = $event->getStateMachine()->getGraph();
         }
 
-        $stateMachine = $this->factory->get($object, $graph);
-        if (!$soft || $stateMachine->can($transition)) {
-            $stateMachine->apply($transition);
+        foreach ($objects as $object) {
+            $stateMachine = $this->factory->get($object, $graph);
+            if (!$soft || $stateMachine->can($transition)) {
+                $stateMachine->apply($transition);
+            }
         }
     }
 }
